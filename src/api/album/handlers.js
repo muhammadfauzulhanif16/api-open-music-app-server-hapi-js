@@ -1,52 +1,53 @@
-exports.AlbumHandlers = (service, validator) => {
-  const postAlbumHandler = async (req, h) => {
+exports.AlbumHandlers = (albumServices, validator) => {
+  const addAlbum = async (req, h) => {
     validator.validateAlbumPayload(req.payload)
-    const albumId = await service.postAlbumService(req.payload)
+
+    const albumId = await albumServices.addAlbum(req.payload)
 
     return h
       .response({
         status: 'success',
         data: {
-          albumId,
-        },
+          albumId
+        }
       })
       .code(201)
   }
 
-  const getAlbumByIdHandler = async (req) => {
-    const album = await service.getAlbumByIdService(req.params.id)
+  const getAlbum = async (req) => {
+    const album = await albumServices.getAlbum(req.params.id)
 
     return {
       status: 'success',
       data: {
-        album,
-      },
+        album
+      }
     }
   }
 
-  const putAlbumByIdHandler = async (req) => {
+  const editAlbum = async (req) => {
     validator.validateAlbumPayload(req.payload)
-    await service.putAlbumByIdService(req.params.id, req.payload)
+    await albumServices.editAlbum(req.params.id, req.payload)
 
     return {
       status: 'success',
-      message: 'Album berhasil diperbarui',
+      message: 'Album berhasil diperbarui'
     }
   }
 
-  const deleteAlbumByIdHandler = async (req) => {
-    await service.deleteAlbumByIdService(req.params.id)
+  const deleteAlbum = async (req) => {
+    await albumServices.deleteAlbum(req.params.id)
 
     return {
       status: 'success',
-      message: 'Album berhasil dihapus',
+      message: 'Album berhasil dihapus'
     }
   }
 
   return {
-    postAlbumHandler,
-    getAlbumByIdHandler,
-    putAlbumByIdHandler,
-    deleteAlbumByIdHandler,
+    addAlbum,
+    getAlbum,
+    editAlbum,
+    deleteAlbum
   }
 }

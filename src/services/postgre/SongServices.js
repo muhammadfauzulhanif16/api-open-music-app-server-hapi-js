@@ -1,20 +1,19 @@
 require('dotenv').config()
 const { Pool } = require('pg')
 const uuid = require('uuid')
-
 const { InvariantError, NotFoundError } = require('../../exceptions')
 const { mapDBToSongsModel, mapDBToSongModel } = require('../../utils')
 
 exports.SongServices = () => {
   const pool = new Pool()
 
-  const postSongService = async ({
+  const addSong = async ({
     title,
     year,
-    genre,
     performer,
+    genre,
     duration,
-    albumId,
+    albumId
   }) => {
     const id = uuid.v4()
     const createdAt = new Date()
@@ -25,87 +24,78 @@ exports.SongServices = () => {
         id,
         title,
         year,
-        genre,
         performer,
+        genre,
         duration,
         albumId,
         createdAt,
-        createdAt,
-      ],
+        createdAt
+      ]
     })
 
-    if (!song.rows[0].id) {
-      throw new InvariantError('Lagu gagal ditambahkan')
-    }
+    if (!song.rows[0].id) throw new InvariantError('Lagu gagal ditambahkan')
 
     return song.rows[0].id
   }
 
-  const getSongsService = async ({ title, performer }) => {
+  const getSongs = async ({ title, performer }) => {
     let songs
 
     if (title && performer) {
-      songs = await pool.query({
-        text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
-        values: [`%${title}%`, `%${performer}%`],
-      })
+      songs = await pool.query(
+        'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
+        [`%${title}%`, `%${performer}%`]
+      )
     } else if (title || performer) {
-      songs = await pool.query({
-        text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) OR LOWER(performer) LIKE LOWER($2)',
-        values: [`%${title}%`, `%${performer}%`],
-      })
-    } else {
-      songs = await pool.query('SELECT * FROM songs')
-    }
+      songs = await pool.query(
+        'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) OR LOWER(performer) LIKE LOWER($2)',
+        [`%${title}%`, `%${performer}%`]
+      )
+    } else songs = await pool.query('SELECT * FROM songs')
 
     return songs.rows.map(mapDBToSongsModel)
   }
 
-  const getSongByIdService = async (id) => {
-    const song = await pool.query({
-      text: 'SELECT * FROM songs WHERE id = $1',
-      values: [id],
-    })
+  const getSong = async (id) => {
+    const song = await pool.query('SELECT * FROM songs WHERE id = $1', [id])
 
-    if (!song.rows.length) {
-      throw new NotFoundError('Lagu tidak ditemukan')
-    }
+    if (!song.rowCount) throw new NotFoundError('Lagu tidak ditemukan')
 
     return song.rows[0].map(mapDBToSongModel)
   }
 
-  const putSongByIdService = async (
+  const editSong = async (
     id,
-    { title, year, genre, performer, duration, albumId }
+    { title, year, performer, genre, duration, albumId }
   ) => {
     const updatedAt = new Date()
 
-    const song = await pool.query({
-      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, album_id = $6, updated_at = $7 WHERE id = $8 RETURNING id',
-      values: [title, year, genre, performer, duration, albumId, updatedAt, id],
-    })
+    const song = await pool.query(
+      'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, album_id = $6, updated_at = $7 WHERE id = $8 RETURNING id',
+      [title, year, performer, genre, duration, albumId, updatedAt, id]
+    )
 
-    if (!song.rows.length) {
+    if (!song.rowCount) {
       throw new NotFoundError('Gagal memperbarui lagu. Id tidak ditemukan')
     }
   }
 
-  const deleteSongByIdService = async (id) => {
-    const song = await pool.query({
-      text: 'DELETE FROM songs WHERE id = $1 RETURNING id',
-      values: [id],
-    })
+  const deleteSong = async (id) => {
+    const song = await pool.query(
+      'DELETE FROM songs WHERE id = $1 RETURNING id',
+      [id]
+    )
 
-    if (!song.rows.length) {
+    if (!song.rowCount) {
       throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan')
     }
   }
 
   return {
-    postSongService,
-    getSongsService,
-    getSongByIdService,
-    putSongByIdService,
-    deleteSongByIdService,
+    addSong,
+    getSongs,
+    getSong,
+    editSong,
+    deleteSong
   }
 }

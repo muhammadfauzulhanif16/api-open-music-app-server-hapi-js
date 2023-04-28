@@ -1,64 +1,66 @@
-exports.SongHandlers = (service, validator) => {
-  const postSongHandler = async (req, h) => {
+exports.SongHandlers = (songServices, validator) => {
+  const addSong = async (req, h) => {
     validator.validateSongPayload(req.payload)
-    const songId = await service.postSongService(req.payload)
+
+    const songId = await songServices.addSong(req.payload)
 
     return h
       .response({
         status: 'success',
         data: {
-          songId,
-        },
+          songId
+        }
       })
       .code(201)
   }
 
-  const getSongsHandler = async (req) => {
-    const songs = await service.getSongsService(req.query)
+  const getSongs = async (req) => {
+    const songs = await songServices.getSongs(req.query)
 
     return {
       status: 'success',
       data: {
-        songs,
-      },
+        songs
+      }
     }
   }
 
-  const getSongByIdHandler = async (req) => {
-    const song = await service.getSongByIdService(req.params.id)
+  const getSong = async (req) => {
+    const song = await songServices.getSong(req.params.id)
 
     return {
       status: 'success',
       data: {
-        song,
-      },
+        song
+      }
     }
   }
 
-  const putSongByIdHandler = async (req) => {
+  const editSong = async (req) => {
     validator.validateSongPayload(req.payload)
-    await service.putSongByIdService(req.params.id, req.payload)
+
+    await songServices.editSong(req.params.id, req.payload)
 
     return {
       status: 'success',
-      message: 'Lagu berhasil diperbarui',
+      message: 'Lagu berhasil diperbarui'
     }
   }
 
-  const deleteSongByIdHandler = async (req) => {
-    await service.deleteSongByIdService(req.params.id)
+  const deleteSong = async (req) => {
+    await songServices.deleteSong(req.params.id)
 
     return {
       status: 'success',
-      message: 'Lagu berhasil dihapus',
+      message: 'Lagu berhasil dihapus'
     }
   }
 
   return {
-    postSongHandler,
-    getSongsHandler,
-    getSongByIdHandler,
-    putSongByIdHandler,
-    deleteSongByIdHandler,
+    addSong,
+    getSongs,
+    getSong,
+    editSong,
+    deleteSong
   }
 }

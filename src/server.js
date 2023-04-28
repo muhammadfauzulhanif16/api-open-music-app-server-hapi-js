@@ -1,42 +1,64 @@
 require('dotenv').config()
 const Hapi = require('@hapi/hapi')
+const Jwt = require('@hapi/jwt')
 
-const { Song } = require('./api/song')
-const { SongValidator } = require('./validator/song')
-const { SongServices } = require('./services/postgre/SongServices')
-
-const { Album } = require('./api/album')
-const { AlbumValidator } = require('./validator/album')
-const { AlbumServices } = require('./services/postgre/AlbumServices')
+const { Song, Album } = require('./api')
+const { SongValidator, AlbumValidator } = require('./validator')
+const { SongServices, AlbumServices } = require('./services')
 
 const { ClientError } = require('./exceptions')
 
 const init = async () => {
+  const songServices = SongServices()
+  const albumServices = AlbumServices()
+
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
     routes: {
       cors: {
-        origin: ['*'],
-      },
+        origin: ['*']
+      }
+    }
+  })
+
+  await server.register([
+    {
+      plugin: Jwt.plugin
+    }
+  ])
+
+  server.auth.strategy('openmusic', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE
     },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id
+      }
+    })
   })
 
   await server.register([
     {
       plugin: Song,
       options: {
-        service: SongServices(),
-        validator: SongValidator,
-      },
+        songServices,
+        validator: SongValidator
+      }
     },
     {
       plugin: Album,
       options: {
-        service: AlbumServices(),
-        validator: AlbumValidator,
-      },
-    },
+        albumServices,
+        validator: AlbumValidator
+      }
+    }
   ])
 
   server.ext('onPreResponse', (req, h) => {
@@ -47,7 +69,7 @@ const init = async () => {
         return h
           .response({
             status: 'fail',
-            message: response.message,
+            message: response.message
           })
           .code(response.statusCode)
       }
@@ -59,7 +81,7 @@ const init = async () => {
       return h
         .response({
           status: 'error',
-          message: 'terjadi kegagalan pada server kami',
+          message: 'terjadi kegagalan pada server kami'
         })
         .code(500)
     }

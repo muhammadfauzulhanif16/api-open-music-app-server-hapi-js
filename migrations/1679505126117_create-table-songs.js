@@ -3,39 +3,39 @@ exports.up = (pgm) => {
     id: {
       type: 'CHAR(36)',
       primaryKey: true,
-      notNull: true,
+      notNull: true
     },
     title: {
       type: 'VARCHAR(255)',
-      notNull: true,
+      notNull: true
     },
     year: {
       type: 'SMALLSERIAL',
-      notNull: true,
-    },
-    genre: {
-      type: 'VARCHAR(255)',
-      notNull: true,
+      notNull: true
     },
     performer: {
       type: 'VARCHAR(255)',
-      notNull: true,
+      notNull: true
+    },
+    genre: {
+      type: 'VARCHAR(255)',
+      notNull: true
     },
     duration: {
-      type: 'SMALLINT',
+      type: 'SMALLINT'
     },
     album_id: {
       type: 'CHAR(36)',
-      references: 'albums(id)',
+      references: 'albums(id)'
     },
     created_at: {
       type: 'TIMESTAMPTZ',
-      notNull: true,
+      notNull: true
     },
     updated_at: {
       type: 'TIMESTAMPTZ',
-      notNull: true,
-    },
+      notNull: true
+    }
   })
 
   pgm.createIndex('songs', 'album_id')

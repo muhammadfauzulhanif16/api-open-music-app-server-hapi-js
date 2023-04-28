@@ -2,29 +2,29 @@ exports.mapDBToAlbumModel = ({ id, name, year }, songs) => ({
   id,
   name,
   year,
-  songs,
+  songs
 })
 
 exports.mapDBToSongModel = ({
   id,
   title,
   year,
-  genre,
   performer,
+  genre,
   duration,
-  album_id: albumId,
+  album_id: albumId
 }) => ({
   id,
   title,
   year,
-  genre,
   performer,
+  genre,
   duration,
-  albumId,
+  albumId
 })
 
 exports.mapDBToSongsModel = ({ id, title, performer }) => ({
   id,
   title,
-  performer,
+  performer
 })
