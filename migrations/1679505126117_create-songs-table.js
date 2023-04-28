@@ -38,7 +38,11 @@ exports.up = (pgm) => {
     }
   })
 
-  pgm.createIndex('songs', 'album_id')
+  pgm.createConstraint(
+    'songs',
+    'fk_songs.album_id_albums.id',
+    'FOREIGN KEY(album_id) REFERENCES albums(id) ON DELETE CASCADE'
+  )
 }
 
 exports.down = (pgm) => pgm.dropTable('songs')
