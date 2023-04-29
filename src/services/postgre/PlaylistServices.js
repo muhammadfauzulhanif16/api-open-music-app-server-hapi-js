@@ -16,7 +16,7 @@ exports.PlaylistServices = () => {
     )
 
     if (!result.rows[0].id) {
-      throw new InvariantError('Playlist gagal ditambahkan')
+      throw new InvariantError('Daftar putar gagal ditambahkan')
     }
   }
 
