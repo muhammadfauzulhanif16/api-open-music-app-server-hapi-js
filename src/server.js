@@ -2,16 +2,28 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
 
-const { Song, Album, User } = require('./api')
-const { SongValidator, AlbumValidator, UserValidator } = require('./validator')
-const { SongServices, AlbumServices, UserServices } = require('./services')
+const { Song, Album, User, Authentication } = require('./api')
+const {
+  SongValidator,
+  AlbumValidator,
+  UserValidator,
+  AuthenticationValidator
+} = require('./validator')
+const {
+  SongServices,
+  AlbumServices,
+  UserServices,
+  AuthenticationServices
+} = require('./services')
 
 const { ClientError } = require('./exceptions')
+const { TokenManager } = require('./tokenize/TokenManager')
 
 const init = async () => {
   const userServices = UserServices()
   const songServices = SongServices()
   const albumServices = AlbumServices(songServices)
+  const authenticationServices = AuthenticationServices()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -65,6 +77,15 @@ const init = async () => {
       options: {
         albumServices,
         validator: AlbumValidator
+      }
+    },
+    {
+      plugin: Authentication,
+      options: {
+        authenticationServices,
+        userServices,
+        tokenManager: TokenManager,
+        validator: AuthenticationValidator
       }
     }
   ])
