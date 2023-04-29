@@ -1,5 +1,4 @@
 exports.up = (pgm) => {
-  // membuat table collaborations
   pgm.createTable('album_songs', {
     id: {
       type: 'CHAR(36)',
@@ -20,7 +19,6 @@ exports.up = (pgm) => {
     'unique_album_id_and_song_id',
     'UNIQUE(album_id, song_id)'
   )
-
   pgm.addConstraint(
     'album_songs',
     'fk_album_songs.album_id_albums.id',

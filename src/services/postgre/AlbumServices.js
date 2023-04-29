@@ -2,9 +2,9 @@ require('dotenv').config()
 const { Pool } = require('pg')
 const uuid = require('uuid')
 const { InvariantError, NotFoundError } = require('../../exceptions')
-const { mapDBToAlbumModel, mapDBToSongsModel } = require('../../utils')
+const { mapDBToAlbumModel } = require('../../utils')
 
-exports.AlbumServices = () => {
+exports.AlbumServices = (songServices) => {
   const pool = new Pool()
 
   const addAlbum = async ({ name, year }) => {
@@ -16,9 +16,7 @@ exports.AlbumServices = () => {
       [id, name, year, createdAt, createdAt]
     )
 
-    if (!result.rows[0].id) {
-      throw new InvariantError('Album gagal ditambahkan')
-    }
+    if (!result.rows[0].id) throw new InvariantError('Album gagal ditambahkan')
 
     return result.rows[0].id
   }
@@ -30,11 +28,9 @@ exports.AlbumServices = () => {
       throw new NotFoundError('Album tidak ditemukan')
     }
 
-    const songs = await pool.query('SELECT * FROM songs WHERE album_id = $1', [
-      id
-    ])
+    const songs = await songServices.getSongsByAlbumId(id)
 
-    return mapDBToAlbumModel(result.rows[0], songs.rows.map(mapDBToSongsModel))
+    return mapDBToAlbumModel(result.rows[0], songs)
   }
 
   const editAlbum = async (id, { name, year }) => {
@@ -46,7 +42,7 @@ exports.AlbumServices = () => {
     )
 
     if (!result.rowCount) {
-      throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan')
+      throw new NotFoundError('Album gagal diperbarui. Id tidak ditemukan')
     }
   }
 

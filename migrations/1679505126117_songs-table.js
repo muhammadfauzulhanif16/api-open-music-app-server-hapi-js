@@ -1,4 +1,4 @@
-exports.up = (pgm) => {
+exports.up = (pgm) =>
   pgm.createTable('songs', {
     id: {
       type: 'CHAR(36)',
@@ -24,10 +24,6 @@ exports.up = (pgm) => {
     duration: {
       type: 'SMALLINT'
     },
-    album_id: {
-      type: 'CHAR(36)',
-      references: 'albums(id)'
-    },
     created_at: {
       type: 'TIMESTAMPTZ',
       notNull: true
@@ -37,12 +33,5 @@ exports.up = (pgm) => {
       notNull: true
     }
   })
-
-  pgm.createConstraint(
-    'songs',
-    'fk_songs.album_id_albums.id',
-    'FOREIGN KEY(album_id) REFERENCES albums(id) ON DELETE CASCADE'
-  )
-}
 
 exports.down = (pgm) => pgm.dropTable('songs')
