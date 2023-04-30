@@ -14,6 +14,19 @@ exports.SongHandlers = (songServices, validator) => {
       .code(201)
   }
 
+  const getSong = async (req) => {
+    const song = await songServices.getSong(req.params.id)
+
+    // console.log(song)
+
+    return {
+      status: 'success',
+      data: {
+        song
+      }
+    }
+  }
+
   const getSongs = async (req) => {
     const songs = await songServices.getSongs(req.query)
 
@@ -21,17 +34,6 @@ exports.SongHandlers = (songServices, validator) => {
       status: 'success',
       data: {
         songs
-      }
-    }
-  }
-
-  const getSong = async (req) => {
-    const song = await songServices.getSong(req.params.id)
-
-    return {
-      status: 'success',
-      data: {
-        song
       }
     }
   }
@@ -58,8 +60,8 @@ exports.SongHandlers = (songServices, validator) => {
 
   return {
     addSong,
-    getSongs,
     getSong,
+    getSongs,
     editSong,
     deleteSong
   }

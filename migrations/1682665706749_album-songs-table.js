@@ -2,7 +2,8 @@ exports.up = (pgm) => {
   pgm.createTable('album_songs', {
     id: {
       type: 'CHAR(36)',
-      primaryKey: true
+      primaryKey: true,
+      notNull: true
     },
     album_id: {
       type: 'CHAR(36)',

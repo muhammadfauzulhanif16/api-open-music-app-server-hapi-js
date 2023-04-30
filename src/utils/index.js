@@ -28,3 +28,16 @@ exports.mapDBToSongsModel = ({ id, title, performer }) => ({
   title,
   performer
 })
+
+exports.mapDBToPlaylistsModel = ({ id, name, username }) => ({
+  id,
+  name,
+  username
+})
+
+exports.mapDBToPlaylistModel = ({ id, name, username }, songs) => ({
+  id,
+  name,
+  username,
+  songs
+})

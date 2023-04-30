@@ -6,13 +6,13 @@ exports.SongRoutes = (handlers) => [
   },
   {
     method: 'GET',
-    path: '/songs',
-    handler: (req, h) => handlers.getSongs(req, h)
+    path: '/songs/{id}',
+    handler: (req, h) => handlers.getSong(req, h)
   },
   {
     method: 'GET',
-    path: '/songs/{id}',
-    handler: (req, h) => handlers.getSong(req, h)
+    path: '/songs',
+    handler: (req, h) => handlers.getSongs(req, h)
   },
   {
     method: 'PUT',

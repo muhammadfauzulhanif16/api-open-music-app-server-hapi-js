@@ -2,18 +2,20 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
 
-const { Song, Album, User, Authentication } = require('./api')
+const { Song, Album, User, Authentication, Playlist } = require('./api')
 const {
   SongValidator,
   AlbumValidator,
   UserValidator,
-  AuthenticationValidator
+  AuthenticationValidator,
+  PlaylistValidator
 } = require('./validator')
 const {
   SongServices,
   AlbumServices,
   UserServices,
-  AuthenticationServices
+  AuthenticationServices,
+  PlaylistServices
 } = require('./services')
 
 const { ClientError } = require('./exceptions')
@@ -21,9 +23,10 @@ const { TokenManager } = require('./tokenize/TokenManager')
 
 const init = async () => {
   const userServices = UserServices()
+  const authenticationServices = AuthenticationServices()
   const songServices = SongServices()
   const albumServices = AlbumServices(songServices)
-  const authenticationServices = AuthenticationServices()
+  const playlistServices = PlaylistServices()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -66,6 +69,15 @@ const init = async () => {
       }
     },
     {
+      plugin: Authentication,
+      options: {
+        authenticationServices,
+        userServices,
+        tokenManager: TokenManager,
+        validator: AuthenticationValidator
+      }
+    },
+    {
       plugin: Song,
       options: {
         songServices,
@@ -80,12 +92,11 @@ const init = async () => {
       }
     },
     {
-      plugin: Authentication,
+      plugin: Playlist,
       options: {
-        authenticationServices,
-        userServices,
-        tokenManager: TokenManager,
-        validator: AuthenticationValidator
+        playlistServices,
+        songServices,
+        validator: PlaylistValidator
       }
     }
   ])

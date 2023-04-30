@@ -24,10 +24,10 @@ exports.AlbumServices = (songServices) => {
     const result = await pool.query('SELECT * FROM albums WHERE id = $1', [id])
 
     if (!result.rowCount) {
-      throw new NotFoundError('Album tidak ditemukan')
+      throw new NotFoundError('Album gagal ditampilkan karena tidak ditemukan')
     }
 
-    const songs = await songServices.getSongsByAlbumId(id)
+    const songs = await songServices.getSongsFromAlbum(id)
 
     return mapDBToAlbumModel(result.rows[0], songs)
   }
@@ -36,23 +36,20 @@ exports.AlbumServices = (songServices) => {
     const updatedAt = new Date()
 
     const result = await pool.query(
-      'UPDATE albums SET name = $1, year = $2, updated_at = $3 WHERE id = $4 RETURNING id',
+      'UPDATE albums SET name = $1, year = $2, updated_at = $3 WHERE id = $4',
       [name, year, updatedAt, id]
     )
 
     if (!result.rowCount) {
-      throw new NotFoundError('Album gagal diperbarui. Id tidak ditemukan')
+      throw new NotFoundError('Album gagal diperbarui karena tidak ditemukan')
     }
   }
 
   const deleteAlbum = async (id) => {
-    const result = await pool.query(
-      'DELETE FROM albums WHERE id = $1 RETURNING id',
-      [id]
-    )
+    const result = await pool.query('DELETE FROM albums WHERE id = $1', [id])
 
     if (!result.rowCount) {
-      throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan')
+      throw new NotFoundError('Album gagal dihapus. Album tidak ditemukan')
     }
   }
 

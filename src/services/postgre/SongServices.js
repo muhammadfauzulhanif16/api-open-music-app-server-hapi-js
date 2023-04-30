@@ -24,12 +24,12 @@ exports.SongServices = () => {
 
     if (!result.rows[0].id) throw new InvariantError('Lagu gagal ditambahkan')
 
-    if (albumId) await addSongToAlbum(albumId, id)
+    if (albumId) await addSongToAlbum(id, albumId)
 
     return result.rows[0].id
   }
 
-  const addSongToAlbum = async (albumId, songId) => {
+  const addSongToAlbum = async (songId, albumId) => {
     const id = uuid.v4()
 
     const result = await pool.query(
@@ -38,8 +38,16 @@ exports.SongServices = () => {
     )
 
     if (!result.rowCount) {
-      throw new InvariantError('Lagu gagal ditambahkan ke album.')
+      throw new InvariantError('Lagu gagal ditambahkan ke album')
     }
+  }
+
+  const getSong = async (id) => {
+    const result = await pool.query('SELECT * FROM songs WHERE id = $1', [id])
+
+    if (!result.rowCount) throw new NotFoundError('Lagu tidak ditemukan')
+
+    return mapDBToSongModel(result.rows[0])
   }
 
   const getSongs = async ({ title, performer }) => {
@@ -54,20 +62,13 @@ exports.SongServices = () => {
     return result.rows.map(mapDBToSongsModel)
   }
 
-  const getSongsByAlbumId = async (albumId) => {
-    const results = await pool.query(
+  const getSongsFromAlbum = async (albumId) => {
+    const result = await pool.query(
       'SELECT songs.* FROM songs LEFT JOIN album_songs ON album_songs.song_id = songs.id WHERE album_songs.album_id = $1',
       [albumId]
     )
 
-    return results.rows.map(mapDBToSongsModel)
-  }
-
-  const getSongsByTitleAndPerformer = async (title, performer) => {
-    return await pool.query(
-      'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
-      [`%${title}%`, `%${performer}%`]
-    )
+    return result.rows.map(mapDBToSongsModel)
   }
 
   const getSongsByTitleOrPerformer = async (title, performer) => {
@@ -77,46 +78,42 @@ exports.SongServices = () => {
     )
   }
 
-  const getSong = async (id) => {
-    const result = await pool.query('SELECT * FROM songs WHERE id = $1', [id])
-
-    if (!result.rowCount) throw new NotFoundError('Lagu tidak ditemukan')
-
-    return mapDBToSongModel(result.rows[0])
+  const getSongsByTitleAndPerformer = async (title, performer) => {
+    return await pool.query(
+      'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
+      [`%${title}%`, `%${performer}%`]
+    )
   }
 
   const editSong = async (id, { title, year, performer, genre, duration }) => {
     const updatedAt = new Date()
 
     const song = await pool.query(
-      'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updated_at = $6 WHERE id = $7 RETURNING id',
+      'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, updated_at = $6 WHERE id = $7',
       [title, year, performer, genre, duration, updatedAt, id]
     )
 
     if (!song.rowCount) {
-      throw new NotFoundError('Lagu gagal diperbarui. Id tidak ditemukan')
+      throw new NotFoundError('Lagu gagal diperbarui karena tidak ditemukan')
     }
   }
 
   const deleteSong = async (id) => {
-    const song = await pool.query(
-      'DELETE FROM songs WHERE id = $1 RETURNING id',
-      [id]
-    )
+    const song = await pool.query('DELETE FROM songs WHERE id = $1', [id])
 
     if (!song.rowCount) {
-      throw new NotFoundError('Lagu gagal dihapus. Id tidak ditemukan')
+      throw new NotFoundError('Lagu gagal dihapus karena tidak ditemukan')
     }
   }
 
   return {
     addSong,
     addSongToAlbum,
-    getSongs,
-    getSongsByAlbumId,
-    getSongsByTitleAndPerformer,
-    getSongsByTitleOrPerformer,
     getSong,
+    getSongs,
+    getSongsFromAlbum,
+    getSongsByTitleOrPerformer,
+    getSongsByTitleAndPerformer,
     editSong,
     deleteSong
   }
