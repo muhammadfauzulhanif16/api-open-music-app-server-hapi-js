@@ -8,9 +8,9 @@ exports.PlaylistRoutes = (handlers) => [
     }
   },
   {
-    method: 'DELETE',
-    path: '/playlists/{id}',
-    handler: (req, h) => handlers.deletePlaylist(req, h),
+    method: 'POST',
+    path: '/playlists/{id}/songs',
+    handler: (req, h) => handlers.addSong(req, h),
     options: {
       auth: 'openmusic'
     }
@@ -24,14 +24,6 @@ exports.PlaylistRoutes = (handlers) => [
     }
   },
   {
-    method: 'POST',
-    path: '/playlists/{id}/songs',
-    handler: (req, h) => handlers.addSongToPlaylist(req, h),
-    options: {
-      auth: 'openmusic'
-    }
-  },
-  {
     method: 'GET',
     path: '/playlists/{id}/songs',
     handler: (req, h) => handlers.getPlaylist(req, h),
@@ -40,9 +32,25 @@ exports.PlaylistRoutes = (handlers) => [
     }
   },
   {
+    method: 'GET',
+    path: '/playlists/{id}/activities',
+    handler: (req, h) => handlers.getActivities(req, h),
+    options: {
+      auth: 'openmusic'
+    }
+  },
+  {
+    method: 'DELETE',
+    path: '/playlists/{id}',
+    handler: (req, h) => handlers.deletePlaylist(req, h),
+    options: {
+      auth: 'openmusic'
+    }
+  },
+  {
     method: 'DELETE',
     path: '/playlists/{id}/songs',
-    handler: (req, h) => handlers.deleteSongFromPlaylist(req, h),
+    handler: (req, h) => handlers.deleteSong(req, h),
     options: {
       auth: 'openmusic'
     }

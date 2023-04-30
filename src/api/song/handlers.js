@@ -17,8 +17,6 @@ exports.SongHandlers = (songServices, validator) => {
   const getSong = async (req) => {
     const song = await songServices.getSong(req.params.id)
 
-    // console.log(song)
-
     return {
       status: 'success',
       data: {

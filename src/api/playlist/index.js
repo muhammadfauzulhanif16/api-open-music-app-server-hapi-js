@@ -4,10 +4,10 @@ const { PlaylistRoutes } = require('./routes')
 exports.Playlist = {
   name: 'playlist',
   version: '1.0.0',
-  register: async (server, { playlistServices, songServices, validator }) => {
+  register: async (server, { validator, songServices, playlistServices }) => {
     server.route(
       PlaylistRoutes(
-        PlaylistHandlers(playlistServices, songServices, validator)
+        PlaylistHandlers(validator, songServices, playlistServices)
       )
     )
   }

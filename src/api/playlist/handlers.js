@@ -1,4 +1,4 @@
-exports.PlaylistHandlers = (playlistServices, songServices, validator) => {
+exports.PlaylistHandlers = (validator, songServices, playlistServices) => {
   const addPlaylist = async (req, h) => {
     validator.validatePlaylistPayload(req.payload)
 
@@ -18,10 +18,7 @@ exports.PlaylistHandlers = (playlistServices, songServices, validator) => {
   }
 
   const getPlaylist = async (req) => {
-    await playlistServices.verifyPlaylistOwner(
-      req.params.id,
-      req.auth.credentials.id
-    )
+    await playlistServices.verifyAccess(req.params.id, req.auth.credentials.id)
 
     const playlist = await playlistServices.getPlaylist(req.params.id)
 
@@ -46,11 +43,23 @@ exports.PlaylistHandlers = (playlistServices, songServices, validator) => {
     }
   }
 
+  const getActivities = async (req) => {
+    await playlistServices.verifyOwner(req.params.id, req.auth.credentials.id)
+
+    const playlistId = await playlistServices.verifyPlaylist(req.params.id)
+    const activities = await playlistServices.getActivities(req.params.id)
+
+    return {
+      status: 'success',
+      data: {
+        playlistId,
+        activities
+      }
+    }
+  }
+
   const deletePlaylist = async (req) => {
-    await playlistServices.verifyPlaylistOwner(
-      req.params.id,
-      req.auth.credentials.id
-    )
+    await playlistServices.verifyOwner(req.params.id, req.auth.credentials.id)
 
     await playlistServices.deletePlaylist(req.params.id)
 
@@ -60,16 +69,17 @@ exports.PlaylistHandlers = (playlistServices, songServices, validator) => {
     }
   }
 
-  const addSongToPlaylist = async (req, h) => {
+  const addSong = async (req, h) => {
     validator.validateSongToPlaylistPayload(req.payload)
 
-    await playlistServices.verifyPlaylistOwner(
-      req.params.id,
-      req.auth.credentials.id
-    )
+    await playlistServices.verifyAccess(req.params.id, req.auth.credentials.id)
     await songServices.getSong(req.payload.songId)
-    await playlistServices.verifySongOnPlaylist(req.payload.songId)
-    await playlistServices.addSongToPlaylist(req.params.id, req.payload.songId)
+    await playlistServices.verifySong(req.payload.songId)
+    await playlistServices.addSong(
+      req.params.id,
+      req.auth.credentials.id,
+      req.payload.songId
+    )
 
     return h
       .response({
@@ -79,18 +89,17 @@ exports.PlaylistHandlers = (playlistServices, songServices, validator) => {
       .code(201)
   }
 
-  const deleteSongFromPlaylist = async (req) => {
+  const deleteSong = async (req) => {
+    console.log(req.payload)
     validator.validateSongToPlaylistPayload(req.payload)
 
-    await playlistServices.verifyPlaylistOwner(
-      req.params.id,
-      req.auth.credentials.id
-    )
+    await playlistServices.verifyAccess(req.params.id, req.auth.credentials.id)
     await songServices.getSong(req.payload.songId)
 
-    await playlistServices.deleteSongFromPlaylist(
+    await playlistServices.deleteSong(
       req.params.id,
-      req.payload.songId
+      req.payload.songId,
+      req.auth.credentials.id
     )
 
     return {
@@ -101,10 +110,11 @@ exports.PlaylistHandlers = (playlistServices, songServices, validator) => {
 
   return {
     addPlaylist,
+    addSong,
     getPlaylist,
     getPlaylists,
+    getActivities,
     deletePlaylist,
-    addSongToPlaylist,
-    deleteSongFromPlaylist
+    deleteSong
   }
 }

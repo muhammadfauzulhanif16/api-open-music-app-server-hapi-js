@@ -1,4 +1,4 @@
-exports.AlbumHandlers = (albumServices, validator) => {
+exports.AlbumHandlers = (validator, albumServices) => {
   const addAlbum = async (req, h) => {
     validator.validateAlbumPayload(req.payload)
 
@@ -27,6 +27,7 @@ exports.AlbumHandlers = (albumServices, validator) => {
 
   const editAlbum = async (req) => {
     validator.validateAlbumPayload(req.payload)
+
     await albumServices.editAlbum(req.params.id, req.payload)
 
     return {

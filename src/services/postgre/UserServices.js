@@ -1,19 +1,21 @@
 const { Pool } = require('pg')
 const uuid = require('uuid')
 const bcrypt = require('bcrypt')
-const { InvariantError, AuthenticationError } = require('../../exceptions')
+const {
+  InvariantError,
+  AuthenticationError,
+  NotFoundError
+} = require('../../exceptions')
 
 exports.UserServices = () => {
-  const pool = new Pool()
-
   const addUser = async ({ username, password, fullname }) => {
-    await verifyNewUsername(username)
+    await verifyUsername(username)
 
     const id = uuid.v4()
     const hashedPassword = await bcrypt.hash(password, 16)
     const createdAt = new Date()
 
-    const result = await pool.query(
+    const result = await new Pool().query(
       'INSERT INTO users VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
       [id, username, hashedPassword, fullname, createdAt, createdAt]
     )
@@ -25,8 +27,8 @@ exports.UserServices = () => {
     return result.rows[0].id
   }
 
-  const verifyNewUsername = async (username) => {
-    const result = await pool.query(
+  const verifyUsername = async (username) => {
+    const result = await new Pool().query(
       'SELECT username FROM users WHERE username = $1',
       [username]
     )
@@ -38,8 +40,8 @@ exports.UserServices = () => {
     }
   }
 
-  const verifyUserCredential = async (username, password) => {
-    const result = await pool.query(
+  const verifyCredential = async (username, password) => {
+    const result = await new Pool().query(
       'SELECT id, password FROM users WHERE username = $1',
       [username]
     )
@@ -58,9 +60,20 @@ exports.UserServices = () => {
     return id
   }
 
+  const getUser = async (userId) => {
+    const result = await new Pool().query('SELECT * FROM users WHERE id = $1', [
+      userId
+    ])
+
+    if (!result.rowCount) {
+      throw new NotFoundError('Pengguna tidak ditemukan')
+    }
+  }
+
   return {
     addUser,
-    verifyNewUsername,
-    verifyUserCredential
+    verifyUsername,
+    verifyCredential,
+    getUser
   }
 }

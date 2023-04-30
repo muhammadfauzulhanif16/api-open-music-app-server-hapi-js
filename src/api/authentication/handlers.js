@@ -1,24 +1,25 @@
 exports.AuthenticationHandlers = (
-  authenticationServices,
-  userServices,
+  validator,
   tokenManager,
-  validator
+  userServices,
+  authenticationServices
 ) => {
   const addAuthentication = async (req, h) => {
     validator.validateAddAuthenticationPayload(req.payload)
 
-    const id = await userServices.verifyUserCredential(
+    const id = await userServices.verifyCredential(
       req.payload.username,
       req.payload.password
     )
     const accessToken = tokenManager.generateAccessToken({ id })
     const refreshToken = tokenManager.generateRefreshToken({ id })
+
     await authenticationServices.addRefreshToken(refreshToken)
 
     return h
       .response({
         status: 'success',
-        message: 'Authentication berhasil ditambahkan',
+        message: 'Autentikasi berhasil ditambahkan',
         data: {
           accessToken,
           refreshToken
@@ -31,12 +32,13 @@ exports.AuthenticationHandlers = (
     validator.validateEditAuthenticationPayload(req.payload)
 
     await authenticationServices.verifyRefreshToken(req.payload.refreshToken)
+
     const { id } = tokenManager.verifyRefreshToken(req.payload.refreshToken)
     const accessToken = tokenManager.generateAccessToken({ id })
 
     return {
       status: 'success',
-      message: 'Access Token berhasil diperbarui',
+      message: 'Access token berhasil diperbarui',
       data: {
         accessToken
       }

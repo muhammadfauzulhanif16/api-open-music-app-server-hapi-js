@@ -10,7 +10,7 @@ exports.up = (pgm) => {
       notNull: true
     },
     owner: {
-      type: 'VARCHAR(255)',
+      type: 'CHAR(36)',
       notNull: true
     },
     created_at: {

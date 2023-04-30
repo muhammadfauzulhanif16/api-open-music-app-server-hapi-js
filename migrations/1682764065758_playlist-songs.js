@@ -12,10 +12,6 @@ exports.up = (pgm) => {
     song_id: {
       type: 'CHAR(36)',
       notNull: true
-    },
-    created_at: {
-      type: 'TIMESTAMPTZ',
-      notNull: true
     }
   })
 
