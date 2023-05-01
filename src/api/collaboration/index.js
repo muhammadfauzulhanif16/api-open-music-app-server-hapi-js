@@ -18,5 +18,5 @@ exports.Collaboration = {
         )
       )
     )
-  },
+  }
 }

@@ -21,11 +21,15 @@ exports.PlaylistHandlers = (validator, songServices, playlistServices) => {
     await playlistServices.verifyAccess(req.params.id, req.auth.credentials.id)
 
     const playlist = await playlistServices.getPlaylist(req.params.id)
+    const songs = await playlistServices.getSongs(req.params.id)
 
     return {
       status: 'success',
       data: {
-        playlist
+        playlist: {
+          ...playlist,
+          songs
+        }
       }
     }
   }

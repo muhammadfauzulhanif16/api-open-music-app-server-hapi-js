@@ -2,7 +2,7 @@ exports.mapDBToAlbumModel = ({ id, name, year }, songs) => ({
   id,
   name,
   year,
-  songs,
+  songs
 })
 
 exports.mapDBToSongModel = ({
@@ -12,7 +12,7 @@ exports.mapDBToSongModel = ({
   performer,
   genre,
   duration,
-  album_id: albumId,
+  album_id: albumId
 }) => ({
   id,
   title,
@@ -20,36 +20,29 @@ exports.mapDBToSongModel = ({
   performer,
   genre,
   duration,
-  albumId,
+  albumId
 })
 
 exports.mapDBToSongsModel = ({ id, title, performer }) => ({
   id,
   title,
-  performer,
+  performer
 })
 
-exports.mapDBToPlaylistsModel = ({ id, name, username }) => ({
+exports.mapDBToPlaylistModel = ({ id, name, username }) => ({
   id,
   name,
-  username,
-})
-
-exports.mapDBToPlaylistModel = ({ id, name, username }, songs) => ({
-  id,
-  name,
-  username,
-  songs,
+  username
 })
 
 exports.mapDBToActivitiesModel = ({
   username,
   title,
   action,
-  created_at: time,
+  created_at: time
 }) => ({
   username,
   title,
   action,
-  time,
+  time
 })

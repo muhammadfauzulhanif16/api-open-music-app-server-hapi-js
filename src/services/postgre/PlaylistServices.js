@@ -3,13 +3,12 @@ const { Pool } = require('pg')
 const {
   InvariantError,
   NotFoundError,
-  AuthorizationError,
+  AuthorizationError
 } = require('../../exceptions')
 const {
-  mapDBToPlaylistsModel,
   mapDBToSongsModel,
-  mapDBToPlaylistModel,
   mapDBToActivitiesModel,
+  mapDBToPlaylistModel
 } = require('../../utils')
 
 exports.PlaylistServices = (collaborationServices) => {
@@ -110,18 +109,16 @@ exports.PlaylistServices = (collaborationServices) => {
       )
     }
 
-    const songs = await getSongs(id)
-
-    return mapDBToPlaylistModel(result.rows[0], songs)
+    return mapDBToPlaylistModel(result.rows[0])
   }
 
   const getPlaylists = async (owner) => {
     const result = await new Pool().query(
-      'SELECT playlists.*, users.username FROM playlists LEFT JOIN users ON playlists.owner = users.id WHERE playlists.owner = $1',
+      'SELECT playlists.*, users.username FROM playlists LEFT JOIN users ON playlists.owner = users.id LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id WHERE playlists.owner = $1 OR collaborations.user_id = $1',
       [owner]
     )
 
-    return result.rows.map(mapDBToPlaylistsModel)
+    return result.rows.map(mapDBToPlaylistModel)
   }
 
   const getSongs = async (playlistId) => {
@@ -220,6 +217,6 @@ exports.PlaylistServices = (collaborationServices) => {
     editPlaylist,
     deleteSong,
     deletePlaylist,
-    verifyAccess,
+    verifyAccess
   }
 }

@@ -20,21 +20,6 @@ exports.AlbumServices = () => {
     return result.rows[0].id
   }
 
-  const addSong = async (albumId, songId) => {
-    const id = uuid.v4()
-
-    const result = await new Pool().query(
-      'INSERT INTO album_songs VALUES($1, $2, $3)',
-      [id, albumId, songId]
-    )
-
-    if (!result.rowCount) {
-      throw new InvariantError(
-        'Lagu gagal ditambahkan ke album. Album tidak ditemukan'
-      )
-    }
-  }
-
   const getAlbum = async (id) => {
     const result = await new Pool().query(
       'SELECT * FROM albums WHERE id = $1',
@@ -52,7 +37,7 @@ exports.AlbumServices = () => {
 
   const getSongs = async (albumId) => {
     const result = await new Pool().query(
-      'SELECT songs.* FROM songs LEFT JOIN album_songs ON album_songs.song_id = songs.id WHERE album_songs.album_id = $1',
+      'SELECT * FROM songs WHERE album_id = $1',
       [albumId]
     )
 
@@ -84,7 +69,6 @@ exports.AlbumServices = () => {
 
   return {
     addAlbum,
-    addSong,
     getAlbum,
     getSongs,
     editAlbum,

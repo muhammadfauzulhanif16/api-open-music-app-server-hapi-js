@@ -3,7 +3,7 @@ const uuid = require('uuid')
 const { InvariantError, NotFoundError } = require('../../exceptions')
 const { mapDBToSongsModel, mapDBToSongModel } = require('../../utils')
 
-exports.SongServices = (albumServices) => {
+exports.SongServices = () => {
   const addSong = async ({
     title,
     year,
@@ -16,13 +16,21 @@ exports.SongServices = (albumServices) => {
     const createdAt = new Date()
 
     const result = await new Pool().query(
-      'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
-      [id, title, year, performer, genre, duration, createdAt, createdAt]
+      'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7, $8,$9) RETURNING id',
+      [
+        id,
+        title,
+        year,
+        performer,
+        genre,
+        duration,
+        albumId,
+        createdAt,
+        createdAt
+      ]
     )
 
     if (!result.rows[0].id) throw new InvariantError('Lagu gagal ditambahkan')
-
-    if (albumId) await albumServices.addSong(albumId, id)
 
     return result.rows[0].id
   }

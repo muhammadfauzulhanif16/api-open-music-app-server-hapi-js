@@ -24,6 +24,9 @@ exports.up = (pgm) =>
     duration: {
       type: 'SMALLINT'
     },
+    album_id: {
+      type: 'CHAR(36)'
+    },
     created_at: {
       type: 'TIMESTAMPTZ',
       notNull: true
