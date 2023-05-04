@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
+const Inert = require('@hapi/inert')
 
 const {
   Song,
@@ -8,7 +9,8 @@ const {
   User,
   Authentication,
   Playlist,
-  Collaboration
+  Collaboration,
+  Export
 } = require('./api')
 const {
   SongValidator,
@@ -16,7 +18,8 @@ const {
   UserValidator,
   AuthenticationValidator,
   PlaylistValidator,
-  CollaborationValidator
+  CollaborationValidator,
+  ExportValidator
 } = require('./validator')
 const {
   SongServices,
@@ -24,7 +27,8 @@ const {
   UserServices,
   AuthenticationServices,
   PlaylistServices,
-  CollaborationServices
+  CollaborationServices,
+  ProducerServices
 } = require('./services')
 
 const { ClientError } = require('./exceptions')
@@ -51,6 +55,9 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt.plugin
+    },
+    {
+      plugin: Inert.plugin
     }
   ])
 
@@ -101,7 +108,6 @@ const init = async () => {
         validator: SongValidator
       }
     },
-
     {
       plugin: Collaboration,
       options: {
@@ -117,6 +123,14 @@ const init = async () => {
         playlistServices,
         songServices,
         validator: PlaylistValidator
+      }
+    },
+    {
+      plugin: Export,
+      options: {
+        producerServices: ProducerServices,
+        playlistServices,
+        validator: ExportValidator
       }
     }
   ])

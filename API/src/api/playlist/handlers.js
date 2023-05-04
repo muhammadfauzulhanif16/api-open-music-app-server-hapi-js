@@ -94,7 +94,6 @@ exports.PlaylistHandlers = (validator, songServices, playlistServices) => {
   }
 
   const deleteSong = async (req) => {
-    console.log(req.payload)
     validator.validateSongToPlaylistPayload(req.payload)
 
     await playlistServices.verifyAccess(req.params.id, req.auth.credentials.id)

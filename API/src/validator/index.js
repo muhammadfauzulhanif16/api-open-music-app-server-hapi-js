@@ -4,6 +4,7 @@ const { UserValidator } = require('./user')
 const { AuthenticationValidator } = require('./authentication')
 const { PlaylistValidator } = require('./playlist')
 const { CollaborationValidator } = require('./collaboration')
+const { ExportValidator } = require('./export')
 
 module.exports = {
   AlbumValidator,
@@ -11,5 +12,6 @@ module.exports = {
   UserValidator,
   AuthenticationValidator,
   PlaylistValidator,
-  CollaborationValidator
+  CollaborationValidator,
+  ExportValidator
 }

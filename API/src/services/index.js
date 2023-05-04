@@ -4,6 +4,7 @@ const { UserServices } = require('./postgre/userServices')
 const { AuthenticationServices } = require('./postgre/authenticationServices')
 const { PlaylistServices } = require('./postgre/playlistServices')
 const { CollaborationServices } = require('./postgre/collaborationServices')
+const { ProducerServices } = require('./rabbitmq/producerServices')
 
 module.exports = {
   AlbumServices,
@@ -11,5 +12,6 @@ module.exports = {
   UserServices,
   AuthenticationServices,
   PlaylistServices,
-  CollaborationServices
+  CollaborationServices,
+  ProducerServices
 }
