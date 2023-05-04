@@ -12,13 +12,13 @@ exports.MailSender = () => {
 
   const sendEmail = (targetEmail, content) => {
     const message = {
-      from: 'Notes Apps',
+      from: 'OpenMusic App',
       to: targetEmail,
-      subject: 'Ekspor Catatan',
-      text: 'Terlampir hasil dari ekspor catatan',
+      subject: 'Ekspor Lagu Pada Daftar Putar',
+      text: 'Terlampir hasil dari ekspor lagu pada daftar putar',
       attachments: [
         {
-          filename: 'notes.json',
+          filename: 'openmusic.json',
           content,
         },
       ],
