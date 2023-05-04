@@ -13,6 +13,9 @@ exports.up = (pgm) =>
       type: 'SMALLSERIAL',
       notNull: true
     },
+    cover: {
+      type: 'TEXT'
+    },
     created_at: {
       type: 'TIMESTAMPTZ',
       notNull: true
