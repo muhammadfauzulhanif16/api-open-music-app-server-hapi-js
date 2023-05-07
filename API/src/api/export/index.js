@@ -6,11 +6,11 @@ exports.Export = {
   version: '1.0.0',
   register: async (
     server,
-    { producerServices, playlistServices, validator }
+    { validators, playlistServices, producerServices }
   ) => {
     server.route(
       ExportRoutes(
-        ExportHandlers(producerServices, playlistServices, validator)
+        ExportHandlers(validators, playlistServices, producerServices)
       )
     )
   }

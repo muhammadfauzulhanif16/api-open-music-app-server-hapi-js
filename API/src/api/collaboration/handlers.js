@@ -1,17 +1,17 @@
 exports.CollaborationHandlers = (
-  validator,
-  userServices,
+  validators,
   playlistServices,
+  userServices,
   collaborationServices
 ) => {
   const addCollaboration = async (req, h) => {
-    validator.validateCollaborationPayload(req.payload)
+    validators.collaboration(req.payload)
 
     await playlistServices.getPlaylist(req.payload.playlistId)
     await userServices.getUser(req.payload.userId)
     await playlistServices.verifyOwner(
       req.payload.playlistId,
-      req.auth.credentials.id
+      req.auth.credentials.userId
     )
     const collaborationId = await collaborationServices.addCollaboration(
       req.payload.playlistId,
@@ -30,11 +30,13 @@ exports.CollaborationHandlers = (
   }
 
   const deleteCollaboration = async (req) => {
-    validator.validateCollaborationPayload(req.payload)
+    validators.collaboration(req.payload)
 
+    await playlistServices.getPlaylist(req.payload.playlistId)
+    await userServices.getUser(req.payload.userId)
     await playlistServices.verifyOwner(
       req.payload.playlistId,
-      req.auth.credentials.id
+      req.auth.credentials.userId
     )
     await collaborationServices.deleteCollaboration(
       req.payload.playlistId,

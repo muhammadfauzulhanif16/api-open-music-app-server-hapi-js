@@ -4,7 +4,7 @@ const { UserRoutes } = require('./routes')
 exports.User = {
   name: 'user',
   version: '1.0.0',
-  register: async (server, { userServices, validator }) => {
-    server.route(UserRoutes(UserHandlers(userServices, validator)))
+  register: async (server, { validators, services }) => {
+    server.route(UserRoutes(UserHandlers(validators, services)))
   }
 }

@@ -1,8 +1,8 @@
-exports.mapDBToAlbumModel = ({ id, name, year }, songs) => ({
+exports.mapDBToAlbumModel = ({ id, name, year, cover }) => ({
   id,
   name,
   year,
-  songs
+  coverUrl: cover
 })
 
 exports.mapDBToSongModel = ({

@@ -9,7 +9,7 @@ const {
   mapDBToSongsModel,
   mapDBToActivitiesModel,
   mapDBToPlaylistModel
-} = require('../../utils')
+} = require('../../utils/formatter')
 
 exports.PlaylistServices = (collaborationServices) => {
   const addPlaylist = async (name, owner) => {
@@ -34,26 +34,11 @@ exports.PlaylistServices = (collaborationServices) => {
       [playlistId]
     )
 
-    if (!result.rowCount) {
-      throw new NotFoundError('Daftar putar tidak ditemukan')
-    }
+    await getPlaylist(playlistId)
 
     if (result.rows[0].owner !== userId) {
       throw new AuthorizationError('Anda tidak berhak mengakses sumber ini')
     }
-  }
-
-  const verifyPlaylist = async (playlistId) => {
-    const result = await new Pool().query(
-      'SELECT * FROM playlists WHERE id = $1',
-      [playlistId]
-    )
-
-    if (!result.rowCount) {
-      throw new NotFoundError('Daftar putar tidak ditemukan')
-    }
-
-    return result.rows[0].id
   }
 
   const addSong = async (playlistId, userId, songId) => {
@@ -70,17 +55,6 @@ exports.PlaylistServices = (collaborationServices) => {
 
     if (!result.rowCount) {
       throw new InvariantError('Lagu gagal ditambahkan ke daftar putar')
-    }
-  }
-
-  const verifySong = async (songId) => {
-    const result = await new Pool().query(
-      'SELECT * FROM playlist_songs WHERE song_id = $1',
-      [songId]
-    )
-
-    if (result.rowCount) {
-      throw new InvariantError('Lagu sudah ada di daftar putar')
     }
   }
 
@@ -104,9 +78,7 @@ exports.PlaylistServices = (collaborationServices) => {
     )
 
     if (!result.rowCount) {
-      throw new NotFoundError(
-        'Daftar putar gagal ditampilkan. Daftar putar tidak ditemukan'
-      )
+      throw new NotFoundError('Daftar putar tidak ditemukan')
     }
 
     return mapDBToPlaylistModel(result.rows[0])
@@ -122,6 +94,8 @@ exports.PlaylistServices = (collaborationServices) => {
   }
 
   const getSongs = async (playlistId) => {
+    await getPlaylist(playlistId)
+
     const result = await new Pool().query(
       'SELECT songs.* FROM songs LEFT JOIN playlist_songs ON songs.id = playlist_songs.song_id WHERE playlist_songs.playlist_id = $1',
       [playlistId]
@@ -137,9 +111,7 @@ exports.PlaylistServices = (collaborationServices) => {
     )
 
     if (!result.rowCount) {
-      throw new InvariantError(
-        'Aktivitas gagal ditampilkan. Daftar putar tidak ditemukan'
-      )
+      throw new InvariantError('Aktivitas gagal ditampilkan')
     }
 
     return result.rows.map(mapDBToActivitiesModel)
@@ -152,9 +124,7 @@ exports.PlaylistServices = (collaborationServices) => {
     )
 
     if (!result.rowCount) {
-      throw new NotFoundError(
-        'Daftar putar gagal diperbarui. Daftar putar tidak ditemukan'
-      )
+      throw new InvariantError('Daftar putar gagal diperbarui')
     }
   }
 
@@ -177,16 +147,7 @@ exports.PlaylistServices = (collaborationServices) => {
   }
 
   const deletePlaylist = async (id) => {
-    const result = await new Pool().query(
-      'DELETE FROM playlists WHERE id = $1',
-      [id]
-    )
-
-    if (!result.rowCount) {
-      throw new NotFoundError(
-        'Daftar putar gagal dihapus. Daftar putar tidak ditemukan'
-      )
-    }
+    await new Pool().query('DELETE FROM playlists WHERE id = $1', [id])
   }
 
   const verifyAccess = async (playlistId, userId) => {
@@ -206,9 +167,7 @@ exports.PlaylistServices = (collaborationServices) => {
   return {
     addPlaylist,
     verifyOwner,
-    verifyPlaylist,
     addSong,
-    verifySong,
     addActivity,
     getPlaylist,
     getPlaylists,

@@ -1,10 +1,10 @@
-const { ExportPlaylistPayloadSchema } = require('./schema')
+const { Email } = require('./schema')
 const { InvariantError } = require('../../exceptions')
 
 exports.ExportValidator = {
-  validateExportPlaylistPayload: (payload) => {
-    const { error } = ExportPlaylistPayloadSchema.validate(payload)
-
-    if (error) throw new InvariantError(error.message)
+  email: (payload) => {
+    if (Email.validate(payload).error) {
+      throw new InvariantError(Email.validate(payload).error.message)
+    }
   }
 }

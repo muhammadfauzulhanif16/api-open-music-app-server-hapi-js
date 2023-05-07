@@ -2,6 +2,8 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
 const Inert = require('@hapi/inert')
+const path = require('path')
+const { config } = require('./utils/config')
 
 const {
   Song,
@@ -28,23 +30,29 @@ const {
   AuthenticationServices,
   PlaylistServices,
   CollaborationServices,
-  ProducerServices
+  ProducerServices,
+  StorageServices,
+  CacheServices
 } = require('./services')
 
 const { ClientError } = require('./exceptions')
 const { TokenManager } = require('./tokenize/TokenManager')
 
 const init = async () => {
+  const cacheServices = CacheServices()
   const userServices = UserServices()
   const authenticationServices = AuthenticationServices()
-  const albumServices = AlbumServices()
-  const songServices = SongServices(albumServices)
+  const albumServices = AlbumServices(cacheServices)
+  const songServices = SongServices()
   const collaborationServices = CollaborationServices()
   const playlistServices = PlaylistServices(collaborationServices)
+  const storageServices = StorageServices(
+    path.resolve(__dirname, 'api/album/file/covers/')
+  )
 
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*']
@@ -62,17 +70,17 @@ const init = async () => {
   ])
 
   server.auth.strategy('openmusic', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.auth.access.key,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE
+      maxAgeSec: config.auth.access.maxAgeSec
     },
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decoded.payload.id
+        userId: artifacts.decoded.payload.userId
       }
     })
   })
@@ -81,56 +89,57 @@ const init = async () => {
     {
       plugin: User,
       options: {
-        userServices,
-        validator: UserValidator
+        validators: UserValidator,
+        services: userServices
       }
     },
     {
       plugin: Authentication,
       options: {
-        authenticationServices,
+        validators: AuthenticationValidator,
         userServices,
         tokenManager: TokenManager,
-        validator: AuthenticationValidator
+        authenticationServices
       }
     },
     {
       plugin: Album,
       options: {
+        validators: AlbumValidator,
         albumServices,
-        validator: AlbumValidator
+        storageServices
       }
     },
     {
       plugin: Song,
       options: {
-        songServices,
-        validator: SongValidator
+        validators: SongValidator,
+        services: songServices
       }
     },
     {
       plugin: Collaboration,
       options: {
-        collaborationServices,
+        validators: CollaborationValidator,
         playlistServices,
         userServices,
-        validator: CollaborationValidator
+        collaborationServices
       }
     },
     {
       plugin: Playlist,
       options: {
+        validators: PlaylistValidator,
         playlistServices,
-        songServices,
-        validator: PlaylistValidator
+        songServices
       }
     },
     {
       plugin: Export,
       options: {
-        producerServices: ProducerServices,
+        validators: ExportValidator,
         playlistServices,
-        validator: ExportValidator
+        producerServices: ProducerServices
       }
     }
   ])

@@ -4,7 +4,9 @@ const { AlbumRoutes } = require('./routes')
 exports.Album = {
   name: 'album',
   version: '1.0.0',
-  register: async (server, { validator, albumServices }) => {
-    server.route(AlbumRoutes(AlbumHandlers(validator, albumServices)))
+  register: async (server, { validators, albumServices, storageServices }) => {
+    server.route(
+      AlbumRoutes(AlbumHandlers(validators, albumServices, storageServices))
+    )
   }
 }

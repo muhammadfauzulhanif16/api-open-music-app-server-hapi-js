@@ -1,10 +1,12 @@
-exports.ExportHandlers = (producerServices, playlistServices, validator) => {
+exports.ExportHandlers = (validators, playlistServices, producerServices) => {
   const addExportPlaylist = async (req, h) => {
-    validator.validateExportPlaylistPayload(req.payload)
+    validators.email(req.payload)
 
-    await playlistServices.verifyAccess(req.params.id, req.auth.credentials.id)
-    await playlistServices.getPlaylist(req.params.id)
-
+    await playlistServices.verifyOwner(
+      req.params.id,
+      req.auth.credentials.userId
+    )
+    // await playlistServices.getPlaylist(req.params.id)
     await producerServices.sendMessage(
       'export:playlist',
       JSON.stringify({

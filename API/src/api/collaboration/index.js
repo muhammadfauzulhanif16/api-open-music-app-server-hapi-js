@@ -6,14 +6,14 @@ exports.Collaboration = {
   version: '1.0.0',
   register: async (
     server,
-    { validator, userServices, playlistServices, collaborationServices }
+    { validators, playlistServices, userServices, collaborationServices }
   ) => {
     server.route(
       CollaborationRoutes(
         CollaborationHandlers(
-          validator,
-          userServices,
+          validators,
           playlistServices,
+          userServices,
           collaborationServices
         )
       )

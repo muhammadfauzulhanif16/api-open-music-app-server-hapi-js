@@ -1,7 +1,7 @@
 const { Pool } = require('pg')
 const uuid = require('uuid')
 const { InvariantError, NotFoundError } = require('../../exceptions')
-const { mapDBToSongsModel, mapDBToSongModel } = require('../../utils')
+const { mapDBToSongsModel, mapDBToSongModel } = require('../../utils/formatter')
 
 exports.SongServices = () => {
   const addSong = async ({
@@ -10,7 +10,7 @@ exports.SongServices = () => {
     performer,
     genre,
     duration,
-    albumId
+    albumId = null
   }) => {
     const id = uuid.v4()
     const createdAt = new Date()
@@ -41,7 +41,7 @@ exports.SongServices = () => {
     ])
 
     if (!result.rowCount) {
-      throw new NotFoundError('Lagu gagal ditampilkan. Lagu tidak ditemukan')
+      throw new NotFoundError('Lagu tidak ditemukan')
     }
 
     return mapDBToSongModel(result.rows[0])
@@ -82,7 +82,7 @@ exports.SongServices = () => {
     )
 
     if (!result.rowCount) {
-      throw new NotFoundError('Lagu gagal diperbarui. Lagu tidak ditemukan')
+      throw new InvariantError('Lagu gagal diperbarui')
     }
   }
 
@@ -92,7 +92,7 @@ exports.SongServices = () => {
     ])
 
     if (!result.rowCount) {
-      throw new NotFoundError('Lagu gagal dihapus. Lagu tidak ditemukan')
+      throw new InvariantError('Lagu gagal dihapus')
     }
   }
 

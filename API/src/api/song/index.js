@@ -4,7 +4,7 @@ const { SongRoutes } = require('./routes')
 exports.Song = {
   name: 'song',
   version: '1.0.0',
-  register: async (server, { songServices, validator }) => {
-    server.route(SongRoutes(SongHandlers(songServices, validator)))
+  register: async (server, { validators, services }) => {
+    server.route(SongRoutes(SongHandlers(validators, services)))
   }
 }

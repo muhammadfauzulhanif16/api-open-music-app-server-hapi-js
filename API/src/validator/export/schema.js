@@ -1,5 +1,5 @@
 const Joi = require('joi')
 
-exports.ExportPlaylistPayloadSchema = Joi.object({
+exports.Email = Joi.object({
   targetEmail: Joi.string().email({ tlds: true }).required()
 })

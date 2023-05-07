@@ -6,14 +6,14 @@ exports.Authentication = {
   version: '1.0.0',
   register: async (
     server,
-    { validator, tokenManager, userServices, authenticationServices }
+    { validators, userServices, tokenManager, authenticationServices }
   ) => {
     server.route(
       AuthenticationRoutes(
         AuthenticationHandlers(
-          validator,
-          tokenManager,
+          validators,
           userServices,
+          tokenManager,
           authenticationServices
         )
       )

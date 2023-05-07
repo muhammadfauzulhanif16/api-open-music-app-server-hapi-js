@@ -34,30 +34,24 @@ exports.UserServices = () => {
     )
 
     if (result.rowCount > 0) {
-      throw new InvariantError(
-        'Pengguna baru gagal ditambahkan. Nama pengguna sudah digunakan.'
-      )
+      throw new InvariantError('Nama pengguna sudah digunakan.')
     }
   }
 
   const verifyCredential = async (username, password) => {
     const result = await new Pool().query(
-      'SELECT id, password FROM users WHERE username = $1',
+      'SELECT * FROM users WHERE username = $1',
       [username]
     )
 
-    if (!result.rowCount) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah')
+    if (
+      !result.rowCount ||
+      !(await bcrypt.compare(password, result.rows[0].password))
+    ) {
+      throw new AuthenticationError('Kredensial salah')
     }
 
-    const { id, password: hashedPassword } = result.rows[0]
-    const isValid = await bcrypt.compare(password, hashedPassword)
-
-    if (!isValid) {
-      throw new AuthenticationError('Kredensial yang Anda berikan salah')
-    }
-
-    return id
+    return result.rows[0].id
   }
 
   const getUser = async (userId) => {

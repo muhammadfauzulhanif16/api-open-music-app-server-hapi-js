@@ -1,6 +1,6 @@
 const Joi = require('joi')
 
-exports.CollaborationPayloadSchema = Joi.object({
+exports.Collaboration = Joi.object({
   playlistId: Joi.string().required(),
   userId: Joi.string().required()
 })

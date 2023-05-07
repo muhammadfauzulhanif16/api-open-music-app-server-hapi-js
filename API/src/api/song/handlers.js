@@ -1,8 +1,8 @@
-exports.SongHandlers = (songServices, validator) => {
+exports.SongHandlers = (validators, services) => {
   const addSong = async (req, h) => {
-    validator.validateSongPayload(req.payload)
+    validators.song(req.payload)
 
-    const songId = await songServices.addSong(req.payload)
+    const songId = await services.addSong(req.payload)
 
     return h
       .response({
@@ -15,7 +15,7 @@ exports.SongHandlers = (songServices, validator) => {
   }
 
   const getSong = async (req) => {
-    const song = await songServices.getSong(req.params.id)
+    const song = await services.getSong(req.params.id)
 
     return {
       status: 'success',
@@ -26,7 +26,7 @@ exports.SongHandlers = (songServices, validator) => {
   }
 
   const getSongs = async (req) => {
-    const songs = await songServices.getSongs(req.query)
+    const songs = await services.getSongs(req.query)
 
     return {
       status: 'success',
@@ -37,9 +37,10 @@ exports.SongHandlers = (songServices, validator) => {
   }
 
   const editSong = async (req) => {
-    validator.validateSongPayload(req.payload)
+    validators.song(req.payload)
 
-    await songServices.editSong(req.params.id, req.payload)
+    await services.getSong(req.params.id)
+    await services.editSong(req.params.id, req.payload)
 
     return {
       status: 'success',
@@ -48,7 +49,8 @@ exports.SongHandlers = (songServices, validator) => {
   }
 
   const deleteSong = async (req) => {
-    await songServices.deleteSong(req.params.id)
+    await services.getSong(req.params.id)
+    await services.deleteSong(req.params.id)
 
     return {
       status: 'success',

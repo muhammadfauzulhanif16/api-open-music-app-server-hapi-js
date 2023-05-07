@@ -1,8 +1,8 @@
-exports.UserHandlers = (userServices, validator) => {
+exports.UserHandlers = (validators, services) => {
   const addUser = async (req, h) => {
-    validator.validateUserPayload(req.payload)
+    validators.validateUserPayload(req.payload)
 
-    const userId = await userServices.addUser(req.payload)
+    const userId = await services.addUser(req.payload)
 
     return h
       .response({
